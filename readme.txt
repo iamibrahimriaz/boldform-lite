@@ -378,6 +378,9 @@ Improvements:
 * Improve: The field library is drag-only — fields clone onto the canvas and the palette is never a drop target.
 * Improve: Slider, star-rating, and field styling now follow the form's design theme; star rating defaults to a consistent size.
 * Improve: Refreshed the Forms admin screen — the action notice ("Form moved to trash", etc.) is now a modern alert in the page header, the empty state has a styled "Add New Form" button, the top spacing is tightened, and the form builder sits flush with no left gap.
+* Improve: Redesigned the form Preview screen header into a single toolbar with an Exit button, a clear "Form Preview" title, and a click-to-copy shortcode pill.
+* Improve: Redesigned the Choose Column Layout dialog with guided layout cards, hover/focus highlighting, and a clearer header and hint.
+* Improve: Trimmed redundant builder controls — the duplicate "Add Row" panel-header button and a stray file-input sample in the Style-tab preview.
 
 Fixes:
 * Fix: Forms are no longer submitted for real when rendered in an editor or preview — the Gutenberg block preview, the Elementor editor, and the admin Preview Form screen.
@@ -386,6 +389,7 @@ Fixes:
 * Fix: Forms embedded more than once on a page now get unique element IDs, so labels and widgets target the correct instance.
 * Fix: Checkbox, radio, and dropdown selected states now follow the form's design-theme colour instead of always showing the default teal.
 * Fix: Each field's configured maximum file size is honoured instead of a fixed 2 MB cap, and rich-content fields render their formatting correctly.
+* Fix: Multi-part (Name, Address) and multi-select values now render consistently across the email notification, admin entry view, CSV export, entries list, and the privacy data export — no more "John, , Doe" names or gappy addresses — and multi-line text keeps its line breaks in the email body.
 * Fix: Mailchimp contacts are upserted (PUT) instead of POSTed, resolving the "Member Exists" error on repeat submissions.
 * Fix: Removed the non-functional Brevo "Tags" field and pre-select the form's email field when a connection is assigned.
 * Fix: Restored the `boldform_field_library` filter so add-ons can register custom field types again.
