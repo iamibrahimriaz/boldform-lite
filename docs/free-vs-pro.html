@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BoldForm — Free vs Pro Comparison</title>
+<style>
+  /* ============================================================
+     BoldForm — Free vs Pro comparison
+     Self-contained page. All styles + data + logic live in this
+     single file so it can be dropped onto any server as-is.
+     ============================================================ */
+  :root {
+    --bf-brand:      #0d7a68;   /* BoldForm teal */
+    --bf-brand-dark: #0a6154;
+    --bf-pro:        #6d28d9;   /* Pro accent (violet) */
+    --bf-pro-soft:   #f5f0ff;
+    --bf-yes:        #16a34a;
+    --bf-no:         #cbd5e1;
+    --bf-accent:     #2563eb;
+
+    --bf-bg:         #f4f6f8;
+    --bf-card:       #ffffff;
+    --bf-text:       #1e293b;
+    --bf-muted:      #64748b;
+    --bf-border:     #e5e9ee;
+    --bf-row-alt:    #fafbfc;
+    --bf-shadow:     0 1px 3px rgba(15,23,42,.06), 0 8px 24px rgba(15,23,42,.06);
+    --bf-radius:     14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bf-bg:      #0f141a;
+      --bf-card:    #161d26;
+      --bf-text:    #e6edf3;
+      --bf-muted:   #93a1b1;
+      --bf-border:  #242e3a;
+      --bf-row-alt: #1a222c;
+      --bf-pro-soft:#221b33;
+      --bf-no:      #3a4657;
+      --bf-shadow:  0 1px 3px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bf-bg);
+    color: var(--bf-text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .bf-wrap { max-width: 1000px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  /* ---------- Hero ---------- */
+  .bf-hero { text-align: center; margin-bottom: 32px; }
+  .bf-logo {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 18px; color: var(--bf-brand);
+    margin-bottom: 18px;
+  }
+  .bf-logo__mark {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--bf-brand), var(--bf-brand-dark));
+    display: grid; place-items: center; color: #fff; font-size: 18px;
+  }
+  .bf-hero h1 {
+    font-size: clamp(26px, 4.5vw, 40px);
+    line-height: 1.15; margin: 0 0 12px; letter-spacing: -.02em;
+  }
+  .bf-hero p {
+    max-width: 620px; margin: 0 auto; color: var(--bf-muted); font-size: 16px;
+  }
+  .bf-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 22px; padding: 12px 24px; border-radius: 999px;
+    background: linear-gradient(135deg, var(--bf-pro), #8b5cf6);
+    color: #fff; text-decoration: none; font-weight: 600; font-size: 15px;
+    box-shadow: 0 8px 20px rgba(109,40,217,.28);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .bf-cta:hover { transform: translateY(-1px); box-shadow: 0 12px 26px rgba(109,40,217,.36); }
+  .bf-hero__perks {
+    list-style: none; padding: 0; margin: 18px 0 0;
+    display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+    font-size: 13px; color: var(--bf-muted);
+  }
+  .bf-hero__perks li { display: flex; align-items: center; gap: 6px; }
+  .bf-hero__perks li::before { content: "✓"; color: var(--bf-yes); font-weight: 700; }
+
+  /* ---------- Controls ---------- */
+  .bf-controls {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .bf-search {
+    position: relative; flex: 1 1 240px; min-width: 200px;
+  }
+  .bf-search input {
+    width: 100%; padding: 11px 14px 11px 40px;
+    border: 1px solid var(--bf-border); border-radius: 10px;
+    background: var(--bf-card); color: var(--bf-text);
+    font-size: 15px; outline: none;
+    transition: border-color .12s ease, box-shadow .12s ease;
+  }
+  .bf-search input:focus { border-color: var(--bf-brand); box-shadow: 0 0 0 3px rgba(13,122,104,.15); }
+  .bf-search__icon {
+    position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+    color: var(--bf-muted); pointer-events: none;
+  }
+  .bf-legend { display: flex; gap: 16px; font-size: 13px; color: var(--bf-muted); }
+  .bf-legend span { display: flex; align-items: center; gap: 6px; }
+  .bf-legend .bf-i-yes, .bf-legend .bf-i-no { width: 18px; height: 18px; border-radius: 5px; display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+  .bf-i-yes { background: rgba(22,163,74,.14); color: var(--bf-yes); }
+  .bf-i-no  { background: rgba(148,163,184,.18); color: var(--bf-muted); }
+
+  /* ---------- Tabs ---------- */
+  .bf-tabs {
+    display: flex; gap: 6px; flex-wrap: nowrap; margin-bottom: 18px;
+    overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+  .bf-tabs::-webkit-scrollbar { display: none; }
+  .bf-tab {
+    appearance: none; border: 1px solid var(--bf-border);
+    background: var(--bf-card); color: var(--bf-text);
+    padding: 9px 11px; border-radius: 999px; cursor: pointer;
+    font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px;
+    white-space: nowrap; flex: 0 0 auto;
+    transition: all .12s ease;
+  }
+  .bf-tab:hover { border-color: var(--bf-brand); }
+  .bf-tab.is-active {
+    background: var(--bf-brand); border-color: var(--bf-brand); color: #fff;
+  }
+  .bf-tab__count {
+    font-size: 11.5px; font-weight: 600; padding: 1px 6px; border-radius: 999px;
+    background: rgba(100,116,139,.16); color: var(--bf-muted);
+  }
+  .bf-tab.is-active .bf-tab__count { background: rgba(255,255,255,.22); color: #fff; }
+
+  /* ---------- Table card ---------- */
+  .bf-card {
+    background: var(--bf-card); border: 1px solid var(--bf-border);
+    border-radius: var(--bf-radius); box-shadow: var(--bf-shadow);
+    overflow: hidden;
+  }
+  .bf-table-scroll { overflow-x: auto; }
+  table.bf-table { width: 100%; border-collapse: collapse; min-width: 520px; }
+  .bf-table thead th {
+    position: sticky; top: 0; z-index: 2;
+    background: var(--bf-card);
+    text-align: center; font-size: 13px; letter-spacing: .02em; text-transform: uppercase;
+    color: var(--bf-muted); font-weight: 700;
+    padding: 16px 14px; border-bottom: 1px solid var(--bf-border);
+  }
+  .bf-table thead th.bf-col-feat { text-align: left; }
+  .bf-table thead th.bf-col-pro {
+    color: var(--bf-pro); background: var(--bf-pro-soft);
+  }
+  .bf-col-pro__tag {
+    display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px;
+    background: var(--bf-pro); color: #fff; font-size: 10px; letter-spacing: .04em; vertical-align: middle;
+  }
+  .bf-group-row th {
+    text-align: left; background: var(--bf-row-alt);
+    font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--bf-muted); font-weight: 700; padding: 10px 18px;
+    border-bottom: 1px solid var(--bf-border);
+  }
+  .bf-table tbody td, .bf-table tbody th {
+    padding: 13px 14px; border-bottom: 1px solid var(--bf-border);
+    font-size: 15px; vertical-align: middle;
+  }
+  .bf-table tbody tr:last-child td, .bf-table tbody tr:last-child th { border-bottom: 0; }
+  .bf-table tbody th.bf-feat {
+    text-align: left; font-weight: 500; color: var(--bf-text);
+  }
+  .bf-feat small { display: block; font-weight: 400; color: var(--bf-muted); font-size: 12.5px; margin-top: 2px; }
+  .bf-cell { text-align: center; width: 130px; }
+  .bf-cell.bf-col-pro { background: color-mix(in srgb, var(--bf-pro-soft) 55%, transparent); }
+  .bf-table tbody tr:hover td, .bf-table tbody tr:hover th.bf-feat { background: var(--bf-row-alt); }
+
+  .bf-mark {
+    display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px;
+    font-size: 14px; font-weight: 700;
+  }
+  .bf-mark--yes { background: rgba(22,163,74,.14); color: var(--bf-yes); }
+  .bf-mark--no  { background: rgba(148,163,184,.16); color: var(--bf-no); }
+  .bf-mark--text { display: inline-block; font-size: 13px; font-weight: 600; color: var(--bf-brand); }
+  .bf-cell.bf-col-pro .bf-mark--text { color: var(--bf-pro); }
+
+  /* ---------- Search "no results" + section labels in search mode ---------- */
+  .bf-search-label th {
+    text-align: left; background: var(--bf-brand); color: #fff;
+    font-size: 12px; letter-spacing: .05em; text-transform: uppercase;
+    padding: 8px 18px; font-weight: 700;
+  }
+  .bf-empty { text-align: center; padding: 46px 20px; color: var(--bf-muted); }
+  .bf-empty strong { display: block; font-size: 17px; color: var(--bf-text); margin-bottom: 6px; }
+
+  mark.bf-hl { background: rgba(37,99,235,.22); color: inherit; border-radius: 3px; padding: 0 1px; }
+
+  /* ---------- Footer ---------- */
+  .bf-foot {
+    text-align: center; margin-top: 30px; color: var(--bf-muted); font-size: 13px;
+  }
+  .bf-foot a { color: var(--bf-brand); }
+
+  @media (max-width: 600px) {
+    .bf-wrap { padding: 28px 14px 60px; }
+    .bf-legend { width: 100%; justify-content: flex-start; }
+    .bf-cell { width: 84px; }
+  }
+</style>
+</head>
+<body>
+<div class="bf-wrap">
+
+  <!-- ================= HERO ================= -->
+  <header class="bf-hero">
+    <div class="bf-logo"><span class="bf-logo__mark">B</span> BoldForm</div>
+    <h1>Everything in Free. Even more in Pro.</h1>
+    <p>BoldForm Lite is a genuinely complete form builder — free forever. BoldForm Pro adds
+       payments, advanced fields, automation, and 30+ integrations, all inside the same
+       drag-and-drop builder you already know.</p>
+    <a class="bf-cta" href="https://themewant.com/plugins/boldform" target="_blank" rel="noopener">
+      Get BoldForm Pro →
+    </a>
+    <ul class="bf-hero__perks">
+      <li>Instant access</li>
+      <li>Automatic updates</li>
+      <li>Priority support</li>
+      <li>14-day refund</li>
+    </ul>
+  </header>
+
+  <!-- ================= CONTROLS ================= -->
+  <div class="bf-controls">
+    <div class="bf-search">
+      <span class="bf-search__icon" aria-hidden="true">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      </span>
+      <input id="bf-search" type="search" placeholder="Search BoldForm features (e.g. conditional logic, Turnstile, signature)…" autocomplete="off" aria-label="Search features">
+    </div>
+    <div class="bf-legend">
+      <span><span class="bf-i-yes">✓</span> Included</span>
+      <span><span class="bf-i-no">–</span> Not included</span>
+    </div>
+  </div>
+
+  <!-- ================= TABS ================= -->
+  <nav class="bf-tabs" id="bf-tabs" role="tablist" aria-label="Feature categories"></nav>
+
+  <!-- ================= TABLE ================= -->
+  <div class="bf-card">
+    <div class="bf-table-scroll">
+      <table class="bf-table">
+        <thead>
+          <tr>
+            <th class="bf-col-feat">Feature</th>
+            <th class="bf-col-lite">Free</th>
+            <th class="bf-col-pro">Pro <span class="bf-col-pro__tag">POPULAR</span></th>
+          </tr>
+        </thead>
+        <tbody id="bf-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer class="bf-foot">
+    <p>Comparison for <strong>BoldForm Lite 1.1.3</strong> &amp; <strong>BoldForm Pro</strong>.
+       Questions? <a href="https://themewant.com/support/" target="_blank" rel="noopener">Contact support</a>.</p>
+  </footer>
+
+</div>
+
+<script>
+/* ============================================================
+   FEATURE DATA
+   Each category = one tab. Each row: [label, lite, pro, note?]
+   Values: true = included, false = not included, "text" = qualifier.
+   Edit here — the whole page (tabs, counts, search) re-renders from this.
+   ============================================================ */
+const DATA = [
+  {
+    id: "builder", label: "Form Builder",
+    rows: [
+      ["Drag &amp; drop form builder", true, true],
+      ["Live preview while you build", true, true],
+      ["Unlimited forms &amp; entries", true, true],
+      ["Conditional logic (show/hide fields)", true, true],
+      ["Pre-built form templates", true, true],
+      ["Multi-column rows &amp; layouts", true, true],
+      ["Advanced form styler", true, true, "Themes, per-state styling, colors &amp; gradients"],
+      ["Responsive design controls (desktop/tablet/mobile)", true, true],
+      ["Custom submit button (icon / SVG)", true, true],
+      ["Gutenberg block", true, true],
+      ["Elementor widget", true, true],
+      ["Shortcode embed", true, true],
+      ["Accessibility (WCAG, keyboard nav)", true, true],
+      ["Multi-step (page break) forms", false, true],
+      ["Numeric calculation fields", false, true],
+    ]
+  },
+  {
+    id: "fields", label: "Fields",
+    rows: [
+      ["Single-line Text", true, true],
+      ["Name", true, true],
+      ["Email", true, true],
+      ["Number", true, true],
+      ["Textarea / Paragraph", true, true],
+      ["Dropdown (Select)", true, true],
+      ["Multi-select", true, true],
+      ["Checkbox", true, true],
+      ["Radio", true, true],
+      ["Date", true, true],
+      ["Time", true, true],
+      ["Phone", true, true],
+      ["Website URL", true, true],
+      ["Country", true, true],
+      ["Address", true, true],
+      ["File Upload", true, true],
+      ["Star Rating", true, true],
+      ["Range Slider", true, true],
+      ["Section Break", true, true],
+      ["Terms &amp; Conditions", true, true],
+      ["Captcha", true, true],
+      ["HTML / Content block", true, true],
+      ["Repeater", false, true],
+      ["Signature", false, true],
+      ["Rich Text (WYSIWYG)", false, true],
+      ["Password / Confirm", false, true],
+      ["Hidden Field", false, true],
+      ["Lookup / Autocomplete", false, true],
+      ["Date Range", false, true],
+      ["Geolocation", false, true],
+      ["Color Picker", false, true],
+      ["Calculation", false, true],
+      ["NPS (Net Promoter Score)", false, true],
+      ["Matrix / Checkable grid", false, true],
+      ["Image Choice", false, true],
+      ["Product (payment)", false, true],
+      ["Quantity (payment)", false, true],
+      ["Custom Amount (payment)", false, true],
+      ["Order Summary (payment)", false, true],
+    ]
+  },
+  {
+    id: "settings", label: "Form Settings",
+    rows: [
+      ["Confirmation (redirect or thank-you message)", true, true],
+      ["Duplicate submission prevention", true, true],
+      ["Email notifications (admin + user)", true, true],
+      ["Custom success &amp; error messages", true, true],
+      ["Form scheduling (open / close dates)", false, true],
+      ["Time-window scheduling", false, true],
+      ["Entry limits &amp; cooldown", false, true],
+      ["Per-user submission limits", false, true],
+      ["Save &amp; Resume (continue later)", false, true],
+      ["Draft Auto-Save", false, true],
+      ["Form locking (password protect)", false, true],
+      ["Auto-populate &amp; hidden data", false, true],
+    ]
+  },
+  {
+    id: "spam", label: "Anti-Spam &amp; Security",
+    rows: [
+      ["Honeypot spam trap", true, true],
+      ["Simple Math captcha", true, true],
+      ["Google reCAPTCHA v2", true, true],
+      ["hCaptcha", true, true],
+      ["Cloudflare Turnstile", true, true],
+      ["File-upload type &amp; size restrictions", true, true],
+      ["Nonce &amp; capability protection", true, true],
+      ["Server-side sanitization &amp; escaping", true, true],
+      ["Akismet spam protection", false, true],
+    ]
+  },
+  {
+    id: "entries", label: "Entries, Email &amp; Reports",
+    rows: [
+      ["Entry management (read / unread / starred)", true, true],
+      ["Bulk actions", true, true],
+      ["Trash &amp; restore", true, true],
+      ["Mark as spam", true, true],
+      ["CSV export", true, true],
+      ["Export / import forms &amp; settings (JSON)", true, true],
+      ["Reports dashboard", true, true],
+      ["Email delivery via SMTP", true, true],
+      ["Excel (XLSX) export", false, true],
+      ["PDF export", false, true],
+      ["Edit a saved entry", false, true],
+      ["Private entry notes", false, true],
+      ["Advanced analytics (views, conversions, drop-off)", false, true],
+    ]
+  },
+  {
+    id: "integrations", label: "Integrations &amp; Add-ons",
+    rows: [
+      ["Mailchimp", true, true],
+      ["Brevo (Sendinblue)", true, true],
+      ["Webhooks", false, true],
+      ["ActiveCampaign", false, true],
+      ["ConvertKit", false, true],
+      ["HubSpot", false, true],
+      ["Google Sheets", false, true],
+      ["Slack", false, true],
+      ["Zapier", false, true],
+      ["Make.com", false, true],
+      ["…and many more", false, "30+ apps"],
+    ]
+  },
+];
+
+/* ---------- Rendering ---------- */
+const tabsEl = document.getElementById("bf-tabs");
+const bodyEl = document.getElementById("bf-body");
+const searchEl = document.getElementById("bf-search");
+let activeTab = (location.hash || "").replace("#", "") || DATA[0].id;
+if (!DATA.some(d => d.id === activeTab)) activeTab = DATA[0].id;
+
+function mark(val) {
+  if (val === true)  return '<span class="bf-mark bf-mark--yes" title="Included">✓</span>';
+  if (val === false) return '<span class="bf-mark bf-mark--no" title="Not included">–</span>';
+  return '<span class="bf-mark--text">' + val + '</span>';
+}
+
+function rowHtml(label, lite, pro, note, query) {
+  let lbl = label;
+  if (query) {
+    const re = new RegExp("(" + query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig");
+    // Only highlight in the visible text, not inside HTML entities like &amp;
+    lbl = label.replace(re, '<mark class="bf-hl">$1</mark>');
+  }
+  const noteHtml = note ? '<small>' + note + '</small>' : '';
+  return '<tr>' +
+    '<th scope="row" class="bf-feat">' + lbl + noteHtml + '</th>' +
+    '<td class="bf-cell">' + mark(lite) + '</td>' +
+    '<td class="bf-cell bf-col-pro">' + mark(pro) + '</td>' +
+  '</tr>';
+}
+
+function renderTabs() {
+  tabsEl.innerHTML = DATA.map(cat =>
+    '<button class="bf-tab' + (cat.id === activeTab ? ' is-active' : '') +
+    '" role="tab" data-tab="' + cat.id + '" aria-selected="' + (cat.id === activeTab) + '">' +
+    cat.label + '<span class="bf-tab__count">' + cat.rows.length + '</span></button>'
+  ).join("");
+}
+
+function renderTable() {
+  const cat = DATA.find(d => d.id === activeTab);
+  bodyEl.innerHTML = cat.rows.map(r => rowHtml(r[0], r[1], r[2], r[3], "")).join("");
+}
+
+// Strip HTML entities/tags to a plain lowercase string for matching.
+function plain(str) {
+  const d = document.createElement("div");
+  d.innerHTML = str;
+  return (d.textContent || "").toLowerCase();
+}
+
+function renderSearch(qRaw) {
+  const q = qRaw.trim().toLowerCase();
+  let out = "";
+  let hits = 0;
+  DATA.forEach(cat => {
+    const matched = cat.rows.filter(r =>
+      plain(r[0]).includes(q) || (r[3] && plain(r[3]).includes(q))
+    );
+    if (matched.length) {
+      out += '<tr class="bf-search-label"><th colspan="3">' + cat.label +
+             ' (' + matched.length + ')</th></tr>';
+      out += matched.map(r => rowHtml(r[0], r[1], r[2], r[3], qRaw.trim())).join("");
+      hits += matched.length;
+    }
+  });
+  if (!hits) {
+    out = '<tr><td colspan="3" class="bf-empty"><strong>No matching features</strong>' +
+          'Try a different word — e.g. “conditional logic”, “Turnstile”, or “signature”.</td></tr>';
+  }
+  bodyEl.innerHTML = out;
+}
+
+function refresh() {
+  const q = searchEl.value;
+  if (q.trim()) {
+    tabsEl.style.opacity = ".45";
+    tabsEl.style.pointerEvents = "none";
+    renderSearch(q);
+  } else {
+    tabsEl.style.opacity = "";
+    tabsEl.style.pointerEvents = "";
+    renderTabs();
+    renderTable();
+  }
+}
+
+/* ---------- Events ---------- */
+tabsEl.addEventListener("click", e => {
+  const btn = e.target.closest(".bf-tab");
+  if (!btn) return;
+  activeTab = btn.dataset.tab;
+  history.replaceState(null, "", "#" + activeTab);
+  renderTabs();
+  renderTable();
+});
+
+let t;
+searchEl.addEventListener("input", () => { clearTimeout(t); t = setTimeout(refresh, 90); });
+
+window.addEventListener("hashchange", () => {
+  const h = (location.hash || "").replace("#", "");
+  if (DATA.some(d => d.id === h) && !searchEl.value.trim()) {
+    activeTab = h; renderTabs(); renderTable();
+  }
+});
+
+/* ---------- Init ---------- */
+renderTabs();
+renderTable();
+</script>
+</body>
+</html>
